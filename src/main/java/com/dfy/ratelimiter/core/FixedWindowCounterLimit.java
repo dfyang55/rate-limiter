@@ -19,9 +19,6 @@ public class FixedWindowCounterLimit extends CounterLimit {
     /** 计数器 */
     private AtomicInteger counter = new AtomicInteger(0);
 
-    /** 计数器清零线程 */
-    private Thread counterResetThread;
-
     public FixedWindowCounterLimit(int limitCount, long limitTime) {
         this(limitCount, limitTime, TimeUnit.SECONDS);
     }
@@ -30,21 +27,20 @@ public class FixedWindowCounterLimit extends CounterLimit {
         this.limitCount = limitCount;
         this.limitTime = limitTime;
         this.timeUnit = timeUnit;
-        counterResetThread = new Thread(new CounterResetThread());
-        counterResetThread.start();
+        new Thread(new CounterResetThread()).start(); // 开启计数器清零线程
     }
 
     public boolean tryCount() {
         if (limited) {
             return false;
         } else {
-            if (counter.get() == 10) {
+            int currentCount = counter.get();
+            if (currentCount == limitCount) {
                 logger.info("限流：{}", LocalDateTime.now().toString());
                 limited = true;
                 return false;
             } else {
-                counter.incrementAndGet();
-                return true;
+                return counter.compareAndSet(currentCount, currentCount + 1) ? true : tryCount();
             }
         }
     }
