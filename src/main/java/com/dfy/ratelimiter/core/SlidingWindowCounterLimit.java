@@ -77,8 +77,8 @@ public class SlidingWindowCounterLimit extends CounterLimit {
                     if (preTotalCount + gridDistribution[currentIndex].get() < limitCount)
                         limited = false; // 修改当前状态为不受限
                     resetting = false;
-                    logger.info("当前格子：{}，当前格子访问量：{}，重置格子：{}，重置格子访问量：{}，前窗口格子总数：{}",
-                            currentIndex, gridDistribution[currentIndex].get(), indexToReset, gridDistribution[indexToReset].get(), preTotalCount);
+                    logger.info("当前格子：{}，重置格子：{}，重置格子访问量：{}，前窗口格子总数：{}",
+                            currentIndex, indexToReset, gridDistribution[indexToReset].get(), preTotalCount);
                     gridDistribution[indexToReset].set(0);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
