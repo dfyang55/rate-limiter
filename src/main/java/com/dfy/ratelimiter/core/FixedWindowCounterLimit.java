@@ -30,17 +30,20 @@ public class FixedWindowCounterLimit extends CounterLimit {
         new Thread(new CounterResetThread()).start(); // 开启计数器清零线程
     }
 
-    public boolean tryCount() {
-        if (limited) {
-            return false;
-        } else {
-            int currentCount = counter.get();
-            if (currentCount == limitCount) {
-                logger.info("限流：{}", LocalDateTime.now().toString());
-                limited = true;
+    public boolean tryAcquire() {
+        while (true) {
+            if (limited) {
                 return false;
             } else {
-                return counter.compareAndSet(currentCount, currentCount + 1) ? true : tryCount();
+                int currentCount = counter.get();
+                if (currentCount == limitCount) {
+                    logger.info("限流：{}", LocalDateTime.now().toString());
+                    limited = true;
+                    return false;
+                } else {
+                    if (counter.compareAndSet(currentCount, currentCount + 1))
+                        return true;
+                }
             }
         }
     }

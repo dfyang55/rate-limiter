@@ -45,7 +45,7 @@ public class SlidingWindowCounterLimit extends CounterLimit {
         new Thread(new CounterResetThread()).start();
     }
 
-    public boolean tryCount() {
+    public boolean tryAcquire() {
         while (true) {
             if (limited) {
                 return false;

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * @author: DFY
  * @time: 2020/4/8 17:02
  */
-public abstract class CounterLimit {
+public abstract class CounterLimit implements Limit {
 
     /** 单位时间限制数 */
     protected int limitCount;
@@ -18,10 +18,4 @@ public abstract class CounterLimit {
 
     /** 当前是否为受限状态 */
     protected volatile boolean limited;
-
-    /**
-     * 尝试将计数器加1，返回为true表示能够正常访问接口，false表示访问受限
-     * @return
-     */
-    protected abstract boolean tryCount();
 }

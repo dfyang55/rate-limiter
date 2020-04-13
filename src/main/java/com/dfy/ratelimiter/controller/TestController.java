@@ -18,13 +18,13 @@ public class TestController {
 
     private FixedWindowCounterLimit fixedWindowCounterLimit = new FixedWindowCounterLimit(10, 10);
 
-//    private SlidingWindowCounterLimit slidingWindowCounterLimit = new SlidingWindowCounterLimit(20, 10, 10);
+    private SlidingWindowCounterLimit slidingWindowCounterLimit = new SlidingWindowCounterLimit(20, 10, 10);
 
-    private TokenBucketLimit tokenBucketLimit = new TokenBucketLimit(2, 1, 50);
+//    private TokenBucketLimit tokenBucketLimit = new TokenBucketLimit(2, 1, 50);
 
     @GetMapping("/hello")
     public String hello() {
-        if (!tokenBucketLimit.tryAcquire()) {
+        if (!slidingWindowCounterLimit.tryAcquire()) {
             return "限流!";
         }
         return "hello world!";
