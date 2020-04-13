@@ -24,9 +24,7 @@ public class FixedWindowCounterLimit extends CounterLimit {
     }
 
     public FixedWindowCounterLimit(int limitCount, long limitTime, TimeUnit timeUnit) {
-        this.limitCount = limitCount;
-        this.limitTime = limitTime;
-        this.timeUnit = timeUnit;
+        super(limitCount, limitTime, timeUnit);
         new Thread(new CounterResetThread()).start(); // 开启计数器清零线程
     }
 
@@ -36,7 +34,7 @@ public class FixedWindowCounterLimit extends CounterLimit {
                 return false;
             } else {
                 int currentCount = counter.get();
-                if (currentCount == limitCount) {
+                if (currentCount == changeNumber) {
                     logger.info("限流：{}", LocalDateTime.now().toString());
                     limited = true;
                     return false;
@@ -53,8 +51,8 @@ public class FixedWindowCounterLimit extends CounterLimit {
         public void run() {
             while (true) {
                 try {
-                    timeUnit.sleep(limitTime);
-                    counter.compareAndSet(limitCount, 0); // 计数器清零
+                    timeUnit.sleep(changeTime);
+                    counter.compareAndSet(changeNumber, 0); // 计数器清零
                     limited = false; // 修改当前状态为不受限
                 } catch (InterruptedException e) {
                     e.printStackTrace();

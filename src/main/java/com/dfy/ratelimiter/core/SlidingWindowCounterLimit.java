@@ -32,12 +32,10 @@ public class SlidingWindowCounterLimit extends CounterLimit {
     }
 
     public SlidingWindowCounterLimit(int gridNumber, int limitCount, long limitTime, TimeUnit timeUnit) {
+        super(limitCount, limitTime, timeUnit);
         if (gridNumber <= limitTime)
             throw new RuntimeException("无法完成限流，gridNumber必须大于limitTime，gridNumber = " + gridNumber + ",limitTime = " + limitTime);
         this.gridNumber = gridNumber;
-        this.limitCount = limitCount;
-        this.limitTime = limitTime;
-        this.timeUnit = timeUnit;
         gridDistribution = new AtomicInteger[gridNumber];
         for (int i = 0; i < gridNumber; i++) {
             gridDistribution[i] = new AtomicInteger(0);
@@ -51,7 +49,7 @@ public class SlidingWindowCounterLimit extends CounterLimit {
                 return false;
             } else {
                 int currentGridCount = gridDistribution[currentIndex].get();
-                if (preTotalCount + currentGridCount == limitCount) {
+                if (preTotalCount + currentGridCount == changeNumber) {
                     logger.info("限流：{}", LocalDateTime.now().toString());
                     limited = true;
                     return false;
@@ -68,13 +66,13 @@ public class SlidingWindowCounterLimit extends CounterLimit {
             while (true) {
                 try {
                     timeUnit.sleep(1); // 停止1个时间单位
-                    int indexToReset = currentIndex - limitCount - 1; // 要重置计数的格子索引
+                    int indexToReset = currentIndex - changeNumber - 1; // 要重置计数的格子索引
                     if (indexToReset < 0) indexToReset += gridNumber;
                     resetting = true; // 防止在更新状态时，用户访问接口将当前格子的访问量 + 1
                     preTotalCount = preTotalCount - gridDistribution[indexToReset].get()
                             + gridDistribution[currentIndex++].get(); // 重置当前时间之前的滑动窗口计数
                     if (currentIndex == gridNumber) currentIndex = 0;
-                    if (preTotalCount + gridDistribution[currentIndex].get() < limitCount)
+                    if (preTotalCount + gridDistribution[currentIndex].get() < changeNumber)
                         limited = false; // 修改当前状态为不受限
                     resetting = false;
                     logger.info("当前格子：{}，重置格子：{}，重置格子访问量：{}，前窗口格子总数：{}",

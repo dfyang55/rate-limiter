@@ -21,10 +21,7 @@ public class TokenBucketLimit extends BucketLimit {
     }
 
     public TokenBucketLimit(int genNumber, int genTime, TimeUnit timeUnit, int maxNumber) {
-        this.changeNumber = genNumber;
-        this.changeTime = genTime;
-        this.timeUnit = timeUnit;
-        this.maxNumber = maxNumber;
+        super(maxNumber, timeUnit, genNumber, genTime);
         this.remainingNumber = new AtomicInteger(0);
         new Thread(new GenerateThread()).start();
     }

@@ -21,4 +21,20 @@ public abstract class BucketLimit implements Limit {
     /** 桶中剩余数量 */
     protected AtomicInteger remainingNumber;
 
+    public BucketLimit(int maxNumber, TimeUnit timeUnit, int changeNumber, int changeTime) {
+        this.maxNumber = maxNumber;
+        this.timeUnit = timeUnit;
+        this.changeNumber = changeNumber;
+        this.changeTime = changeTime;
+        verifyParam();
+    }
+
+    protected void verifyParam() {
+        if (maxNumber < 0 || changeNumber < 0 || changeTime < 0) {
+            throw new IllegalArgumentException("参数必须大于0!");
+        }
+        if (maxNumber < changeNumber) {
+            throw new IllegalArgumentException("maxNumber必须大于changeNumber!");
+        }
+    }
 }

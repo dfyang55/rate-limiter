@@ -21,11 +21,9 @@ public class LeakyBucketLimit extends BucketLimit {
     }
 
     public LeakyBucketLimit(int leakNumber, int leakTime, TimeUnit timeUnit, int maxNumber) {
-        this.changeNumber = leakNumber;
-        this.changeTime = leakTime;
-        this.timeUnit = timeUnit;
-        this.maxNumber = maxNumber;
+        super(maxNumber, timeUnit, leakNumber, leakTime);
         this.remainingNumber = new AtomicInteger(0);
+        new Thread(new LeakThread()).start();
     }
 
     public boolean tryAcquire() {
